@@ -2,14 +2,14 @@ import smbus
 import time
 b = smbus.SMBus(1)
 
-#define CLR_SCR_COMMAND 0xFF
-#define OFF_LED_CLOCKWISE 0xFE
-#define OFF_LED_ANTICLOCKWISE 0xFD
-#define ON_LED_CLOCKWISE 0xFC
-#define ON_LED_ANTICLOCKWISE 0xFB
-#define PLAY_ANIMATION 0xFA
-#define SET_ADDRESS 0x0A
-#define ON_LED_NOW 0xF9
+#define CLR_SCR_COMMAND 0xFF          //очистить RGB матрицу
+#define OFF_LED_CLOCKWISE 0xFE       //выключение светодиодов по часовой стрелке
+#define OFF_LED_ANTICLOCKWISE 0xFD  //выключение светодиодов против часовой стрелке
+#define ON_LED_CLOCKWISE 0xFC      //включение светодиодов по часовой стрелке
+#define ON_LED_ANTICLOCKWISE 0xFB //включение светодиодов против часовой стрелке
+#define PLAY_ANIMATION 0xFA      //проиграть анимацию зашитую в памяти контроллера RGB
+#define SET_ADDRESS 0x0A        //установить адрес I2C
+#define ON_LED_NOW 0xF9        //включить светодиод
 
 #
 #WRITE ADRESS
