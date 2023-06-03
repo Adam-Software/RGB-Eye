@@ -1,4 +1,4 @@
-# RGB-Eye
+#RGB-Eye
 This is example how to control Adam RGB Eye by i2c interface
 
 #define CLR_SCR_COMMAND 0xFF //очистить RGB матрицу
@@ -10,14 +10,11 @@ This is example how to control Adam RGB Eye by i2c interface
 #define SET_ADDRESS 0x0A //установить адрес I2C
 #define ON_LED_NOW 0xF9 //включить светодиод
 
-#
 #WRITE ADRESS
-# pak = [0xAA, 0x0A, 0x5E, 0, 0, 0, 0,0]#252
-# b.write_i2c_block_data(0x5f, 0, pak)
-# time.sleep(2)
-
+#pak = [0xAA, 0x0A, 0x5E, 0, 0, 0, 0,0]#252
+#b.write_i2c_block_data(0x5f, 0, pak)
+#time.sleep(2)
 #pak=[170,252,2,1,80,3,30,0]
-
 #write_i2c_block_data(int addr,char cmd,long vals[])
 #time.sleep(1)
 #pakkets addr,reg , color 2 red -3 green -4 blue ,start led ,stop led ,step,time,0,
