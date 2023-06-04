@@ -1,0 +1,73 @@
+		set_color(GREEN, ON);
+		for (uint8_t i=1;i<=80;i=i+5)
+		{set_led(i,ON);
+			show();
+			_delay_ms(100);
+		}
+		_delay_ms(700);
+		clear_reg();
+		set_color(GREEN, ON);
+		for (uint8_t i=0;i<=10;i++)
+		{				
+			set_color(GREEN, ON);
+			for (uint8_t i=1;i<=80;i=i+5)
+			{set_led(i,ON);
+			}
+			show();
+			_delay_ms(90);
+			clear_reg();
+			set_color(GREEN, ON);
+			for (uint8_t i=5;i<=80;i=i+5)
+			{set_led(i,ON);
+				
+
+			}
+			show();
+			_delay_ms(90);
+			clear_reg();
+			set_color(GREEN, ON);
+			for (uint8_t i=9;i<=80;i=i+5)
+			{set_led(i,ON);
+				
+
+			}
+			show();
+			_delay_ms(90);
+			clear_reg();
+			set_color(GREEN, ON);
+			for (uint8_t i=13;i<=80;i=i+5)
+			{set_led(i,ON);
+			}
+			show();
+			_delay_ms(90);
+			
+		}
+		
+			for (uint8_t i=0; i<=80; i++)
+			{
+				set_color(GREEN, ON);
+				set_led(i, OFF);
+				show();
+				_delay_ms(20);
+			}
+			
+						for (uint8_t i=0; i<=40; i++)
+						{
+							set_color(GREEN, ON);
+							set_color(RED, ON);
+							set_led(i, ON);
+							set_led(81-i, ON);
+							show();
+							_delay_ms(50);
+						}
+				_delay_ms(5000);
+										for (uint8_t i=40; i>=0; i--)
+										{
+											set_color(GREEN, ON);
+											set_color(RED, ON);
+											set_led(i, OFF);
+											set_led(81-i, OFF);
+											show();
+											_delay_ms(50);
+										}
+						clear_reg();

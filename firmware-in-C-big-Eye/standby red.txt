@@ -1,0 +1,102 @@
+				for (uint8_t i = 1; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, ON);
+					show();
+					_delay_ms(70);
+				}
+				
+				
+				for (uint8_t i = 2; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, ON);
+
+				}
+				show();
+				_delay_ms(100);
+				
+				for (uint8_t i = 3; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, ON);
+
+				}
+				show();
+				_delay_ms(100);
+				for (uint8_t i = 4; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, ON);
+
+				}
+				show();
+				_delay_ms(2000);
+				
+				
+				
+				
+				
+				for (uint8_t i = 4; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, OFF);
+
+				}
+				show();
+				_delay_ms(1000);
+
+				
+				
+				
+				
+				for (uint8_t i = 3; i<=80; i=i+4)
+				{
+					set_color(RED, ON);
+					set_led(i, OFF);
+
+				}
+				show();
+				_delay_ms(1000);
+		
+				for (uint8_t i = 80; i>=1; i--)
+				{
+					set_color(RED, ON);
+					set_led(i, OFF);
+					show();
+					_delay_ms(30);
+					
+				}
+		
+		
+		for (uint8_t i = 1; i<=80; i++)
+		{
+			set_color(RED, ON);
+			set_led(i, ON);
+			show();
+			_delay_ms(20);
+			
+		}
+			_delay_ms(500);
+				uint8_t j = 1;
+				for (uint8_t i = 1; i<=16; i++)
+				{	
+					set_led(81-j, OFF);
+					set_led(i, OFF);
+					show();
+					_delay_ms(30);
+					if (j == 12){
+						j=1;
+					}
+					j++;
+				}
+			_delay_ms(6000);	
+			
+							for (uint8_t i = 80; i>=1; i--)
+							{
+								set_color(RED, ON);
+								set_led(i, OFF);
+								show();
+								_delay_ms(30);
+								
+							}
