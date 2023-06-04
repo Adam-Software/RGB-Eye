@@ -1,0 +1,23 @@
+Serial programming (UsbAsp) (MISO MOSI SCK)
+
+Fuses:
+//HIGH 0xD9
+//LOW 0xCE
+
+
+avrdude -p m8 -c usbasp -U lfuse:w:0xCE:m -U hfuse:w:0xD9:m
+avrdude -p m8 -c usbasp -U flash:w:big.hex
+
+
+get avrdude:
+http://www.avislab.com/blog/wp-content/uploads/2012/12/avrdude.zip
+
+
+0. Get USBASP (or similar programmer) and avrdude;
+1. Attach wires accordingly to PCB (MISO - > MISO, MOSI -> MOSI, SCK, GND, VCC); 
+2. Run avrdude via console;
+3. Copy OdinEye_test_fw.hex to avrdude folder;
+4. Paste command:
+	avrdude -p m8 -c usbasp -U lfuse:w:0xCE:m -U hfuse:w:0xD9:m
+4.5 and
+	avrdude -p m8 -c usbasp -U flash:w:big.hex
