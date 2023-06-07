@@ -75,7 +75,7 @@ for leds, values in zip(transposed_columns, image_array):
     for led, value in zip(leds, values):
         if not np.array_equal(value, [0, 0, 0]):
             led.turn_on()  # Включаем светодиод
-            time.sleep(0.005)
+            #time.sleep(0.01)
         #else:
            # led.turn_off()  # Выключаем светодиод
 
