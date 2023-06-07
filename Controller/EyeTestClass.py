@@ -5,6 +5,9 @@ import time
 
 i2c_bus = smbus.SMBus(1)
 
+ADDRESS_R = 0x5E
+ADDRESS_L = 0x5F
+
 CONST = 170
 CLR_SCR_COMMAND = 0xFF          #очистить RGB матрицу
 OFF_LED_CLOCKWISE = 0xFE       #выключение светодиодов по часовой стрелке
@@ -25,10 +28,13 @@ ANIM = 0
 
 # Класс LED
 class LED:
-    def __init__(self, i2c_bus, index, CONST, ON_LED_CLOCKWISE, OFF_LED_CLOCKWISE, RED, GREEN, BLUE, STEP, TIME, ANIM):
+    def __init__(self, i2c_bus, ADDRESS_R, ADDRESS_L, index, CONST, ON_LED_CLOCKWISE, OFF_LED_CLOCKWISE, RED, GREEN, BLUE, STEP, TIME, ANIM):
         self.is_on = False  # Изначально светодиод выключен
         
         self.client = i2c_bus
+        
+        self.ADDRESS_R = ADDRESS_R
+        self.ADDRESS_L = ADDRESS_L
         
         self.index = index
         self.CONST = CONST
@@ -47,14 +53,14 @@ class LED:
         self.is_on = True
         
         pak = [self.CONST, self.ON_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
-        b.write_smbus(0x5f, 0, pak)
+        self.client.write_smbus(self.ADDRESS_L, 0, pak)
         time.sleep(0.004)
 
     def turn_off(self):
         self.is_on = False
         
-        pak = [170, self.OFF_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
-        self.client.write_smbus(0x5f, 0, pak)
+        pak = [self.CONST, self.OFF_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
+        self.client.write_smbus(self.ADDRESS_L, 0, pak)
         time.sleep(0.004)
 
 # Создание списка объектов LED
