@@ -43,7 +43,7 @@ class LED:
         self.TIME = TIME
         self.ANIM = ANIM
 
-    def turn_on(self, , RED, command):
+    def turn_on(self):
         self.is_on = True
         
         pak = [self.CONST, self.ON_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
