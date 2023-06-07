@@ -28,43 +28,31 @@ ANIM = 0
 
 # Класс LED
 class LED:
-    def __init__(self, i2c_bus, ADDRESS_R, ADDRESS_L, index, CONST, ON_LED_CLOCKWISE, OFF_LED_CLOCKWISE, RED, GREEN, BLUE, STEP, TIME, ANIM):
+
+    def __init__(self, i2c_bus, index):
         self.is_on = False  # Изначально светодиод выключен
         
         self.client = i2c_bus
-        
-        self.ADDRESS_R = ADDRESS_R
-        self.ADDRESS_L = ADDRESS_L
-        
+
         self.index = index
-        self.CONST = CONST
-        self.ON_LED_CLOCKWISE = ON_LED_CLOCKWISE
-        self.OFF_LED_CLOCKWISE = OFF_LED_CLOCKWISE
-        
-        self.RED = RED
-        self.GREEN = GREEN
-        self.BLUE = BLUE
-        
-        self.STEP = STEP
-        self.TIME = TIME
-        self.ANIM = ANIM
+
 
     def turn_on(self):
         self.is_on = True
         
-        pak = [self.CONST, self.ON_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
-        self.client.write_smbus(self.ADDRESS_L, 0, pak)
-        time.sleep(0.004)
+        pak = [170, 0xFC , 2, self.index, self.index, 0, 0, 0]
+        self.client.write_i2c_block_data(0x5E, 0, pak)
+
 
     def turn_off(self):
         self.is_on = False
         
-        pak = [self.CONST, self.OFF_LED_CLOCKWISE, self.RED, self.index, self.index, self.STEP, self.TIME, self.ANIM]
-        self.client.write_smbus(self.ADDRESS_L, 0, pak)
-        time.sleep(0.004)
+        pak = [170, 0xFE , 2, self.index, self.index, 0, 0, 0]
+        self.client.write_i2c_block_data(0x5E, 0, pak)
+
 
 # Создание списка объектов LED
-led_list = [LED(i + 1) for i in range(80)]
+led_list = [LED(i2c_bus, i + 1) for i in range(80)]
 
 # Распределение LED по столбцам
 columns = 20
@@ -87,8 +75,9 @@ for leds, values in zip(transposed_columns, image_array):
     for led, value in zip(leds, values):
         if not np.array_equal(value, [0, 0, 0]):
             led.turn_on()  # Включаем светодиод
-        else:
-            led.turn_off()  # Выключаем светодиод
+            time.sleep(0.005)
+        #else:
+           # led.turn_off()  # Выключаем светодиод
 
 # Проверка состояния светодиодов
 for led in led_list:
