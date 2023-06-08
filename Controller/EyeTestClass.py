@@ -79,7 +79,7 @@ image_array = image_to_array(image_path)
 # Перебор транспонированных столбцов и массива изображения
 for leds, values in zip(transposed_columns, image_array):
     for led, value in zip(leds, values):
-        if not np.array_equal(value, [0, 0, 0]):
+        if not np.array_equal(value, [255, 255, 255]):
             led.turn_on()  # Включаем светодиод
             time.sleep(0.0002)
         #else:
