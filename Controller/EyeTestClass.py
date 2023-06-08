@@ -18,6 +18,7 @@ PLAY_ANIMATION = 0xFA      #проиграть анимацию зашитую �
 SET_ADDRESS = 0x0A        #установить адрес I2C
 ON_LED_NOW = 0xF9        #включить светодиод
 
+#set color 0x00 - OFF, 2 -R, 4 - B, 3 - G, 0x21 -RB, 0x31 - RG, 0x23 - BG, 0x33 = RGB
 RED = 2
 GREEN = 3
 BLUE = 4
@@ -40,16 +41,21 @@ class LED:
     def turn_on(self):
         self.is_on = True
         
-        pak = [170, 0xFC , 2, self.index, self.index, 0, 0, 0]
+        pak = [170, 0xFC, 0x31, self.index, self.index, 1, 0, 0]
         self.client.write_i2c_block_data(0x5E, 0, pak)
 
 
     def turn_off(self):
         self.is_on = False
         
-        pak = [170, 0xFE , 2, self.index, self.index, 0, 0, 0]
+        pak = [170, 0xFE, 0x31, self.index, self.index, 1, 0, 0]
         self.client.write_i2c_block_data(0x5E, 0, pak)
 
+#очистка матрицы
+pak = [170, 0xFF, 2, 1, 80, 1, 0, 0]#252
+i2c_bus.write_i2c_block_data(0x5E, 0, pak)
+#b.write_i2c_block_data(0x5F, 0, pak)
+time.sleep(0.100)
 
 # Создание списка объектов LED
 led_list = [LED(i2c_bus, i + 1) for i in range(80)]
@@ -67,7 +73,7 @@ def image_to_array(image_path):
     return array
 
 # Путь к изображению
-image_path = "eye.png"
+image_path = "eye2.png"
 image_array = image_to_array(image_path)
 
 # Перебор транспонированных столбцов и массива изображения
@@ -75,7 +81,7 @@ for leds, values in zip(transposed_columns, image_array):
     for led, value in zip(leds, values):
         if not np.array_equal(value, [0, 0, 0]):
             led.turn_on()  # Включаем светодиод
-            #time.sleep(0.01)
+            time.sleep(0.0002)
         #else:
            # led.turn_off()  # Выключаем светодиод
 
