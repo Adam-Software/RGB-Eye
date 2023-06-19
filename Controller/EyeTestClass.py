@@ -22,8 +22,13 @@ ON_LED_NOW = 0xF9        #включить светодиод
 RED = 2
 GREEN = 3
 BLUE = 4
+RB = 0x21
+RG = 0x31
+BG = 0x23
+RGB = 0x33
+OFF = 0
 
-STEP = 0
+STEP = 1
 TIME = 0
 ANIM = 0
 
@@ -38,24 +43,22 @@ class LED:
         self.index = index
 
 
-    def turn_on(self):
+    def turn_on(self, COLOR):
         self.is_on = True
         
-        pak = [170, 0xFC, 0x31, self.index, self.index, 1, 0, 0]
-        self.client.write_i2c_block_data(0x5E, 0, pak)
+        pak = [170, ON_LED_CLOCKWISE, COLOR, self.index, self.index, STEP, TIME, 0]
+        self.client.write_i2c_block_data(ADDRESS_L, 0, pak)
 
 
-    def turn_off(self):
+    def turn_off(self, COLOR):
         self.is_on = False
         
-        pak = [170, 0xFE, 0x31, self.index, self.index, 1, 0, 0]
-        self.client.write_i2c_block_data(0x5E, 0, pak)
+        pak = [170, OFF_LED_CLOCKWISE, COLOR, self.index, self.index, STEP, TIME, 0]
+        self.client.write_i2c_block_data(ADDRESS_L, 0, pak)
 
-#очистка матрицы
-pak = [170, 0xFF, 2, 1, 80, 1, 0, 0]#252
-i2c_bus.write_i2c_block_data(0x5E, 0, pak)
-#b.write_i2c_block_data(0x5F, 0, pak)
-time.sleep(0.100)
+def clearRGB():
+   pak = [170, CLR_SCR_COMMAND, 0, 1, 80, STEP, TIME, 0]#252
+   i2c_bus.write_i2c_block_data(ADDRESS_L, 0, pak)
 
 # Создание списка объектов LED
 led_list = [LED(i2c_bus, i + 1) for i in range(80)]
@@ -70,24 +73,204 @@ transposed_columns = list(zip(*columns_list))
 def image_to_array(image_path):
     image = cv2.imread(image_path)
     array = np.array(image)
+    #print(array)
     return array
 
-# Путь к изображению
-image_path = "eye2.png"
-image_array = image_to_array(image_path)
 
-# Перебор транспонированных столбцов и массива изображения
-for leds, values in zip(transposed_columns, image_array):
-    for led, value in zip(leds, values):
-        if not np.array_equal(value, [255, 255, 255]):
-            led.turn_on()  # Включаем светодиод
-            time.sleep(0.0002)
-        #else:
-           # led.turn_off()  # Выключаем светодиод
 
-# Проверка состояния светодиодов
-for led in led_list:
-    if led.is_on:
-        print(f"LED {led.index} включен")
-    else:
-        print(f"LED {led.index} выключен")
+def ledon(image_array):
+  # Перебор транспонированных столбцов и массива изображения
+  for leds, values in zip(transposed_columns, image_array):
+      for led, value in zip(leds, values):
+          if np.array_equal(value, [255, 0, 0]):
+              COLOR = BLUE
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [0, 255, 0]):
+              COLOR = GREEN
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [0, 0, 255]):
+              COLOR = RED
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [0, 255, 255]):
+              COLOR = RG
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [255, 0, 255]):
+              COLOR = RB
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [255, 255, 0]):
+              COLOR = BG
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [255, 255, 200]):
+              COLOR = RGB
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+          if np.array_equal(value, [0, 0, 0]):
+              COLOR = OFF
+              led.turn_on(COLOR)  # Включаем светодиод
+              time.sleep(0.00002)
+
+def anim2():
+    for i in range(2):
+        # Путь к изображению
+        clearRGB()
+        image_path = "eyeRF1.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF2.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF3.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF4.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF5.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF6.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF7.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF8.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF9.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF10.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF11.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF12.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF13.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+def anim1():
+    for i in range(20):
+        clearRGB()
+        image_path = "eyeRF14.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF15.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF16.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF17.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF18.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF19.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+        clearRGB()
+        image_path = "eyeRF20.png"
+        image_array = image_to_array(image_path)
+        ledon(image_array)
+        time.sleep(delay)
+
+def anim():
+    for i in range(10):
+      clearRGB()
+      image_path = "eyeRF21.png"
+      image_array = image_to_array(image_path)
+      ledon(image_array)
+      time.sleep(delay)
+
+      clearRGB()
+      image_path = "eyeRF22.png"
+      image_array = image_to_array(image_path)
+      ledon(image_array)
+      time.sleep(delay)
+
+delay = 0.05
+anim1()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
