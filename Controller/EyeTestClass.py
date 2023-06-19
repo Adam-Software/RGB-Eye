@@ -5,272 +5,127 @@ import time
 
 i2c_bus = smbus.SMBus(1)
 
-ADDRESS_R = 0x5E
 ADDRESS_L = 0x5F
+ADDRESS_R = 0x5E
 
-CONST = 170
-CLR_SCR_COMMAND = 0xFF          #очистить RGB матрицу
-OFF_LED_CLOCKWISE = 0xFE       #выключение светодиодов по часовой стрелке
-OFF_LED_ANTICLOCKWISE = 0xFD  #выключение светодиодов против часовой стрелке
-ON_LED_CLOCKWISE = 0xFC      #включение светодиодов по часовой стрелке
-ON_LED_ANTICLOCKWISE = 0xFB #включение светодиодов против часовой стрелке
-PLAY_ANIMATION = 0xFA      #проиграть анимацию зашитую в памяти контроллера RGB
-SET_ADDRESS = 0x0A        #установить адрес I2C
-ON_LED_NOW = 0xF9        #включить светодиод
-
-#set color 0x00 - OFF, 2 -R, 4 - B, 3 - G, 0x21 -RB, 0x31 - RG, 0x23 - BG, 0x33 = RGB
-RED = 2
-GREEN = 3
-BLUE = 4
-RB = 0x21
-RG = 0x31
-BG = 0x23
-RGB = 0x33
-OFF = 0
+COLORS = {
+    "OFF": 0,
+    "RED": 2,
+    "GREEN": 3,
+    "BLUE": 4,
+    "RB": 0x21,
+    "RG": 0x31,
+    "BG": 0x23,
+    "RGB": 0x33
+}
 
 STEP = 1
 TIME = 0
 ANIM = 0
 
-# Класс LED
 class LED:
-
-    def __init__(self, i2c_bus, index):
-        self.is_on = False  # Изначально светодиод выключен
-        
-        self.client = i2c_bus
-
-        self.index = index
-
-
-    def turn_on(self, COLOR):
-        self.is_on = True
-        
-        pak = [170, ON_LED_CLOCKWISE, COLOR, self.index, self.index, STEP, TIME, 0]
-        self.client.write_i2c_block_data(ADDRESS_L, 0, pak)
-
-
-    def turn_off(self, COLOR):
+    def __init__(self, i2c_bus, address, index):
         self.is_on = False
-        
-        pak = [170, OFF_LED_CLOCKWISE, COLOR, self.index, self.index, STEP, TIME, 0]
-        self.client.write_i2c_block_data(ADDRESS_L, 0, pak)
+        self.client = i2c_bus
+        self.address = address
+        self.index = index
+        self.color = COLORS["OFF"]
 
-def clearRGB():
-   pak = [170, CLR_SCR_COMMAND, 0, 1, 80, STEP, TIME, 0]#252
-   i2c_bus.write_i2c_block_data(ADDRESS_L, 0, pak)
+    def turn_on(self, color):
+        # Включение светодиода определенного цвета
+        self.is_on = True
+        self.color = color
+        pak = [170, 0xFC, self.color, self.index, self.index, STEP, TIME, ANIM]
+        self.client.write_i2c_block_data(self.address, 0, pak)
 
-# Создание списка объектов LED
-led_list = [LED(i2c_bus, i + 1) for i in range(80)]
+    def turn_off(self):
+        # Выключение светодиода
+        self.is_on = False
+        self.color = COLORS["OFF"]
+        pak = [170, 0xFE, self.color, self.index, self.index, STEP, TIME, ANIM]
+        self.client.write_i2c_block_data(self.address, 0, pak)
 
-# Распределение LED по столбцам
-columns = 20
-column_size = 4
-columns_list = [led_list[i:i+column_size] for i in range(0, len(led_list), column_size)]
-transposed_columns = list(zip(*columns_list))
+class EyeController:
+    def __init__(self, i2c_bus, address):
+        self.client = i2c_bus
+        self.address = address
+        self.led_list = zip(*[iter([LED(i2c_bus, address, i + 1) for i in range(80)])] * 4) 
 
-# Загрузка изображения и преобразование в массив NumPy
-def image_to_array(image_path):
-    image = cv2.imread(image_path)
-    array = np.array(image)
-    #print(array)
-    return array
+    def set_led_color(self, index, color):
+        # Установка цвета светодиода по указанному индексу
+        led = self.led_list[index - 1]
+        led.turn_on(color)
 
+    def clear_leds(self):
+        # Выключение всех светодиодов
+        for led in self.led_list:
+            led.turn_off()
 
+    def clear_rgb(self):
+        # Очистка RGB-матрицы
+        pak = [170, 0xFF, 0, 1, 80, STEP, TIME, 0]
+        self.client.write_i2c_block_data(self.address, 0, pak)
 
-def ledon(image_array):
-  # Перебор транспонированных столбцов и массива изображения
-  for leds, values in zip(transposed_columns, image_array):
-      for led, value in zip(leds, values):
-          if np.array_equal(value, [255, 0, 0]):
-              COLOR = BLUE
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [0, 255, 0]):
-              COLOR = GREEN
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [0, 0, 255]):
-              COLOR = RED
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [0, 255, 255]):
-              COLOR = RG
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [255, 0, 255]):
-              COLOR = RB
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [255, 255, 0]):
-              COLOR = BG
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [255, 255, 200]):
-              COLOR = RGB
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
-          if np.array_equal(value, [0, 0, 0]):
-              COLOR = OFF
-              led.turn_on(COLOR)  # Включаем светодиод
-              time.sleep(0.00002)
+    def process_image(self, image_path):
+        # Обработка изображения и управление светодиодами
+        image = cv2.imread(image_path)
+        image_array = np.array(image)
 
-def anim2():
-    for i in range(2):
-        # Путь к изображению
-        clearRGB()
-        image_path = "eyeRF1.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
+        for leds, values in zip(self.led_list, image_array):
+            for led, value in zip(leds, values):
+                if np.array_equal(value, [255, 0, 0]):
+                    led.turn_on(COLORS["BLUE"])
+                elif np.array_equal(value, [0, 255, 0]):
+                    led.turn_on(COLORS["GREEN"])
+                elif np.array_equal(value, [0, 0, 255]):
+                    led.turn_on(COLORS["RED"])
+                elif np.array_equal(value, [0, 255, 255]):
+                    led.turn_on(COLORS["RG"])
+                elif np.array_equal(value, [255, 0, 255]):
+                    led.turn_on(COLORS["RB"])
+                elif np.array_equal(value, [255, 255, 0]):
+                    led.turn_on(COLORS["BG"])
+                elif np.array_equal(value, [255, 255, 200]):
+                    led.turn_on(COLORS["RGB"])
+                else:
+                    led.turn_off()
 
-        clearRGB()
-        image_path = "eyeRF2.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
+                time.sleep(0.0002)
 
-        clearRGB()
-        image_path = "eyeRF3.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF4.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF5.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF6.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF7.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF8.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF9.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF10.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF11.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF12.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF13.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-def anim1():
-    for i in range(20):
-        clearRGB()
-        image_path = "eyeRF14.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF15.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF16.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF17.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF18.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF19.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-        clearRGB()
-        image_path = "eyeRF20.png"
-        image_array = image_to_array(image_path)
-        ledon(image_array)
-        time.sleep(delay)
-
-def anim():
-    for i in range(10):
-      clearRGB()
-      image_path = "eyeRF21.png"
-      image_array = image_to_array(image_path)
-      ledon(image_array)
-      time.sleep(delay)
-
-      clearRGB()
-      image_path = "eyeRF22.png"
-      image_array = image_to_array(image_path)
-      ledon(image_array)
-      time.sleep(delay)
-
-delay = 0.05
-anim1()
+    def display_image(self, image_path):
+        # Отображение изображения на светодиодах
+        #self.clear_rgb()
+        self.process_image(image_path)
 
 
+# Пример использования
 
+i2c_bus = smbus.SMBus(1)
 
+# Создание объектов EyeController для левого и правого глаза
+eye_controller_l = EyeController(i2c_bus, ADDRESS_L)
+#eye_controller_r = EyeController(i2c_bus, ADDRESS_R)
 
+# Отображение изображения на светодиодах левого глаза
+image_path_l = "\ExampleImage\eye.png"
+eye_controller_l.display_image(image_path_l)
 
+# Отображение изображения на светодиодах правого глаза
+#image_path_r = "eye_right.png"
+#eye_controller_r.display_image(image_path_r)
 
+# Установка цвета для определенных светодиодов левого глаза
+#eye_controller_l.set_led_color(1, COLORS["BLUE"])
+#eye_controller_l.set_led_color(2, COLORS["RED"])
+#eye_controller_l.set_led_color(3, COLORS["GREEN"])
+#eye_controller_l.set_led_color(4, COLORS["OFF"])
 
+# Установка цвета для определенных светодиодов правого глаза
+#eye_controller_r.set_led_color(1, COLORS["BLUE"])
+#eye_controller_r.set_led_color(2, COLORS["RED"])
+#eye_controller_r.set_led_color(3, COLORS["GREEN"])
+#eye_controller_r.set_led_color(4, COLORS["OFF"])
 
-
-
-
-
-
-
-
-
-
+# Выключение всех светодиодов левого и правого глаза
+eye_controller_l.clear_leds()
+#eye_controller_r.clear_leds()
