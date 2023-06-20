@@ -64,6 +64,7 @@ class EyeController:
         for leds in self.led_list:
             for led in leds:
                 led.turn_off()
+                time.sleep(0.0002)
 
     def clear_rgb(self):
         # Очистка RGB-матрицы
@@ -111,8 +112,19 @@ eye_controller_l = EyeController(i2c_bus, ADDRESS_L)
 #eye_controller_r = EyeController(i2c_bus, ADDRESS_R)
 
 # Отображение изображения на светодиодах левого глаза
-image_path_l = "ExampleImage\eye.png"
-eye_controller_l.display_image(image_path_l)
+#image_path_l = "ExampleImage/eyeR.png"
+#eye_controller_l.display_image(image_path_l)
+#eye_controller_l.clear_leds()
+#time.sleep(1)
+
+eye_controller_l.clear_rgb()
+for j in range(20):
+  for i in range(7):
+      i =i+10
+      image_path_l = "ExampleImage/"+str(i)+".png"
+      eye_controller_l.display_image(image_path_l)
+      time.sleep(0.05)
+
 time.sleep(5)
 # Отображение изображения на светодиодах правого глаза
 #image_path_r = "eye_right.png"
@@ -132,5 +144,5 @@ time.sleep(5)
 
 # Выключение всех светодиодов левого и правого глаза
 #eye_controller_l.clear_leds()
-#eye_controller_l.clear_rgb()
+eye_controller_l.clear_rgb()
 #eye_controller_r.clear_leds()
