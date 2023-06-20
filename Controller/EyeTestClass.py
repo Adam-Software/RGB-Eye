@@ -49,8 +49,11 @@ class EyeController:
     def __init__(self, i2c_bus, address):
         self.client = i2c_bus
         self.address = address
-        self.led_list = zip(*[iter([LED(i2c_bus, address, i + 1) for i in range(80)])] * 4) 
-
+        #self.led_list = zip(*[iter([LED(i2c_bus, address, i + 1) for i in range(80)])] * 4)
+        leds = [LED(i2c_bus, address, i + 1) for i in range(80)]
+        columns_list = [leds[i:i+4] for i in range(0, len(leds), 4)]
+        self.led_list = list(zip(*columns_list))
+         
     def set_led_color(self, index, color):
         # Установка цвета светодиода по указанному индексу
         led = self.led_list[index - 1]
@@ -58,8 +61,9 @@ class EyeController:
 
     def clear_leds(self):
         # Выключение всех светодиодов
-        for led in self.led_list:
-            led.turn_off()
+        for leds in self.led_list:
+            for led in leds:
+                led.turn_off()
 
     def clear_rgb(self):
         # Очистка RGB-матрицы
@@ -107,9 +111,9 @@ eye_controller_l = EyeController(i2c_bus, ADDRESS_L)
 #eye_controller_r = EyeController(i2c_bus, ADDRESS_R)
 
 # Отображение изображения на светодиодах левого глаза
-image_path_l = "\ExampleImage\eye.png"
+image_path_l = "ExampleImage\eye.png"
 eye_controller_l.display_image(image_path_l)
-
+time.sleep(5)
 # Отображение изображения на светодиодах правого глаза
 #image_path_r = "eye_right.png"
 #eye_controller_r.display_image(image_path_r)
@@ -127,5 +131,6 @@ eye_controller_l.display_image(image_path_l)
 #eye_controller_r.set_led_color(4, COLORS["OFF"])
 
 # Выключение всех светодиодов левого и правого глаза
-eye_controller_l.clear_leds()
+#eye_controller_l.clear_leds()
+#eye_controller_l.clear_rgb()
 #eye_controller_r.clear_leds()
