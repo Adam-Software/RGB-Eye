@@ -116,16 +116,27 @@ eye_controller_l = EyeController(i2c_bus, ADDRESS_L)
 #eye_controller_l.display_image(image_path_l)
 #eye_controller_l.clear_leds()
 #time.sleep(1)
+def playanim():
+    eye_controller_l.clear_rgb()
+    for j in range(20):
+      for i in range(4):
+          #i =i+26
+          image_path_l = "eye/"+str(i)+".png"
+          eye_controller_l.display_image(image_path_l)
+          time.sleep(0.5)
+      time.sleep(5)
 
-eye_controller_l.clear_rgb()
-for j in range(20):
-  for i in range(7):
-      i =i+10
-      image_path_l = "ExampleImage/"+str(i)+".png"
-      eye_controller_l.display_image(image_path_l)
-      time.sleep(0.05)
+    time.sleep(5)
 
-time.sleep(5)
+def openfile():
+    eye_controller_l.clear_rgb()
+    image_path_l = "Heart2/25.png"
+    eye_controller_l.display_image(image_path_l)
+    time.sleep(5)
+    eye_controller_l.clear_rgb()
+
+#openfile()
+playanim()
 # Отображение изображения на светодиодах правого глаза
 #image_path_r = "eye_right.png"
 #eye_controller_r.display_image(image_path_r)
